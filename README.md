@@ -119,13 +119,101 @@ npx knex migrate:up migration_name_file.js
 
 ```js
 npx knex migrate:rollback
+npx knex migrate:rollback --all
 
 // ou
 
 npx knex migrate:down migration_name_file.js
 ```
 
- 
+# SELECT
+
+Primeiro é necessário capturar a conexão
+
+`knex/config/database.js`
+
+```js
+const knexfile = require('../../knexfile');
+const knex = require('knex')(knexfile);
+
+module.exports = knex;
+```
+
+`exampleSelect.js`
+
+```js
+const knex = require('../config/database');
+
+  knex('users').then(() => {
+    console.log(response);
+  }).catch (error => {
+    console.log(error)
+  }).finally {
+    knex.destroy();
+}
+
+module.exports = makeInsert;
+```
+
+Aqui foi usado o then para tratar a promise, mas estruturar com await fica bem melhor :3
+
+> O simples fato de você passar o nome da tabela é reconhecido pelo knex como SELECT * FROM TABLE
+
+# INSERT
+
+`knex/config/database.js`
+
+```js
+const knexfile = require('../../knexfile');
+const knex = require('knex')(knexfile);
+
+module.exports = knex;
+```
+
+`makeInsert.js`
+
+```js
+const knex = require('../config/database');
+
+const makeInsert = async (table, data) => {
+  try {
+    const response = await knex(table).insert(data);
+    console.log(response);
+  } catch (error) {
+    console.log(error);
+  } finally {
+    knex.destroy();
+  }
+};
+
+module.exports = makeInsert;
+```
+
+`exampleInsert.js`
+
+```js
+const makeInsert = require('../utils/makeInsert');
+
+const data = [
+  {
+    first_name: 'William',
+    last_name: 'Henry gates',
+    email: 'bill.gates@microsoft.com',
+    password_hash: 'strong_pass',
+    salary: 99999999999.9999,
+  },
+  {
+    first_name: 'Leonardo',
+    last_name: 'Davinci',
+    email: 'leo@art.com',
+    password_hash: 'strong_pass',
+    salary: 99999.9999,
+  },
+];
+
+makeInsert('users', data);
+```
+
 
 
 
