@@ -139,20 +139,40 @@ const knex = require('knex')(knexfile);
 module.exports = knex;
 ```
 
-`exampleSelect.js`
+`makeSelect.js`
 
 ```js
 const knex = require('../config/database');
 
-  knex('users').then(() => {
+const makeSelect = async (table, columns) => {
+  try {
+    const response = await knex(table).select(columns);
     console.log(response);
-  }).catch (error => {
-    console.log(error)
-  }).finally {
+  } catch (error) {
+    console.log(error);
+  } finally {
     knex.destroy();
-}
+  }
+};
 
-module.exports = makeInsert;
+module.exports = makeSelect;
+```
+
+`exampleSelect.js`
+
+```js
+const makeSelect = require('../utils/makeSelect');
+
+const columns = ['email', 'id'];
+
+makeSelect('users', columns);
+
+//EXEMPLOS COM ALIAS
+
+//const columns = ['email as user_email', 'id as user_id'];
+
+//makeSelect('users as users_premium', columns);
+
 ```
 
 Aqui foi usado o then para tratar a promise, mas estruturar com await fica bem melhor :3
