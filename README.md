@@ -10,6 +10,7 @@
 - [SELECT](#select)
   - [Select básico](#select-básico)
   - [Select com where](#select-com-where)
+  - [SELECT BETWEEN](#select-between)
 - [INSERT](#insert)
   - [Insert básico](#insert-básico)
   - [Insert com RAW](#insert-com-raw)
@@ -233,6 +234,40 @@ async function main() {
 main();
 ```
 
+## SELECT BETWEEN
+
+Buscando registros entre os id's 1 e 2
+
+`knex/config/database.js`
+
+```js
+const knexfile = require('../../knexfile');
+const knex = require('knex')(knexfile);
+
+module.exports = knex;
+```
+
+```js
+const knex = require('../config/database');
+
+async function main() {
+  try {
+    const response = await knex('users')
+      .select('id', 'first_name')
+      .whereBetween('id', [1, 2]);
+
+    console.log(response);
+  } catch (error) {
+    console.log(error);
+  } finally {
+    knex.destroy();
+  }
+}
+
+main();
+```
+
+
 # INSERT
 
 ## Insert básico
@@ -291,6 +326,49 @@ makeInsert('users', data);
 ```
 
 ## Insert com RAW
+
+`knex/config/database.js`
+
+```js
+const knexfile = require('../../knexfile');
+const knex = require('knex')(knexfile);
+
+module.exports = knex;
+```
+
+`executeRaw.js`
+
+```js
+const knex = require('../config/database');
+
+const rawData = `
+  insert into users
+    (first_name,
+      last_name,
+      email,
+      password_hash,
+      salary)
+  values ('nikola',
+          'tesla',
+          'nikola@tesla.com',
+          'strong_pass',
+          9999.99);
+`;
+
+async function main() {
+  try {
+    const response = await knex.raw(rawData);
+    console.log(response);
+  } catch (error) {
+    console.log(error);
+  } finally {
+    knex.destroy();
+  }
+}
+
+main();
+```
+
 
 
 # Referencias
