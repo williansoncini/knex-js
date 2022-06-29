@@ -1,3 +1,20 @@
+- [Notas :3](#notas-3)
+- [instalação](#instalação)
+- [Iniciando o Knex](#iniciando-o-knex)
+- [Migrations](#migrations)
+  - [Criando a migration](#criando-a-migration)
+  - [Configurando migration](#configurando-migration)
+    - [Migration com relaçõesc](#migration-com-relaçõesc)
+  - [Aplicando a migration - Aplicar o up](#aplicando-a-migration---aplicar-o-up)
+  - [Desfazendo a mgração - Aplicar o down](#desfazendo-a-mgração---aplicar-o-down)
+- [SELECT](#select)
+  - [Select básico](#select-básico)
+  - [Select com where](#select-com-where)
+- [INSERT](#insert)
+  - [Insert básico](#insert-básico)
+  - [Insert com RAW](#insert-com-raw)
+- [Referencias](#referencias)
+
 # Notas :3
 
 # instalação
@@ -128,6 +145,8 @@ npx knex migrate:down migration_name_file.js
 
 # SELECT
 
+## Select básico
+
 Primeiro é necessário capturar a conexão
 
 `knex/config/database.js`
@@ -177,9 +196,46 @@ makeSelect('users', columns);
 
 Aqui foi usado o then para tratar a promise, mas estruturar com await fica bem melhor :3
 
-> O simples fato de você passar o nome da tabela é reconhecido pelo knex como SELECT * FROM TABLE
+> O simples fato de você passar o nome da tabela é reconhecido pelo knex como SELECT * FROM TABLE, se você não informar as colunas
+
+## Select com where
+
+Aqui gostei da maneira que da para filtrar utilizando a estrutura de objetos.
+
+`knex/config/database.js`
+
+```js
+const knexfile = require('../../knexfile');
+const knex = require('knex')(knexfile);
+
+module.exports = knex;
+```
+
+```js
+const knex = require('../config/database');
+
+async function main() {
+  try {
+    const response = await knex('users')
+      .select('id', 'first_name')
+      .where('id', '=', 1)
+      .andWhere({ first_name: 'William' })
+      .orWhere({ id: 2 });
+
+    console.log(response);
+  } catch (error) {
+    console.log(error);
+  } finally {
+    knex.destroy();
+  }
+}
+
+main();
+```
 
 # INSERT
+
+## Insert básico
 
 `knex/config/database.js`
 
@@ -234,21 +290,9 @@ const data = [
 makeInsert('users', data);
 ```
 
-
-
-
-
-
-
+## Insert com RAW
 
 
 # Referencias
 
 https://github.com/luizomf/sql-e-knex
-
-
-
-
-
-
-
