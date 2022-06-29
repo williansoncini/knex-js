@@ -125,7 +125,7 @@ npx knex migrate:rollback
 npx knex migrate:down migration_name_file.js
 ```
 
-
+ 
 
 
 
