@@ -9,14 +9,27 @@
   - [Desfazendo a mgração - Aplicar o down](#desfazendo-a-mgração---aplicar-o-down)
 - [SELECT](#select)
   - [Select básico](#select-básico)
-  - [Select com where](#select-com-where)
-  - [SELECT BETWEEN](#select-between)
+  - [WHERE](#where)
+  - [BETWEEN](#between)
+  - [IN](#in)
 - [INSERT](#insert)
   - [Insert básico](#insert-básico)
   - [Insert com RAW](#insert-com-raw)
+- [UPDATE](#update)
+- [DELETE](#delete)
+- [JOIN](#join)
+  - [INNER JOIN](#inner-join)
+  - [LEFT JOIN](#left-join)
+  - [RIGHT JOIN](#right-join)
 - [Referencias](#referencias)
 
 # Notas :3
+
+> É tudo bem simples. Basicamente os segredos estão no where, onde se seleciona whereIn, whereAnd, whereBetween. Logo não tem muito segredo :3
+>
+> Se tratando dos Join's também funciona da mesma forma
+>
+> O único problema é as vezes ter que customizar muito uma consulta, ai é necessário passar como RAW para o Knex
 
 # instalação
 
@@ -53,11 +66,9 @@ module.exports = {
   }
 };
 ```
-
 # Migrations
 
 ## Criando a migration
-
 
 ```js
 npx knex migrate:make 'create-users'
@@ -191,7 +202,7 @@ makeSelect('users', columns);
 
 //const columns = ['email as user_email', 'id as user_id'];
 
-//makeSelect('users as users_premium', columns);
+//makeSelect('users as users_premium', columns);ddddddddddd
 
 ```
 
@@ -199,7 +210,7 @@ Aqui foi usado o then para tratar a promise, mas estruturar com await fica bem m
 
 > O simples fato de você passar o nome da tabela é reconhecido pelo knex como SELECT * FROM TABLE, se você não informar as colunas
 
-## Select com where
+## WHERE
 
 Aqui gostei da maneira que da para filtrar utilizando a estrutura de objetos.
 
@@ -234,7 +245,7 @@ async function main() {
 main();
 ```
 
-## SELECT BETWEEN
+## BETWEEN
 
 Buscando registros entre os id's 1 e 2
 
@@ -267,6 +278,38 @@ async function main() {
 main();
 ```
 
+## IN
+
+Buscando registros entre os id's 1 e 2
+
+`knex/config/database.js`
+
+```js
+const knexfile = require('../../knexfile');
+const knex = require('knex')(knexfile);
+
+module.exports = knex;
+```
+
+```js
+const knex = require('../config/database');
+
+async function main() {
+  try {
+    const response = await knex('users')
+      .select('id', 'first_name')
+      .whereIn('id', [1, 2]);
+
+    console.log(response);
+  } catch (error) {
+    console.log(error);
+  } finally {
+    knex.destroy();
+  }
+}
+
+main();
+```
 
 # INSERT
 
@@ -336,7 +379,7 @@ const knex = require('knex')(knexfile);
 module.exports = knex;
 ```
 
-`executeRaw.js`
+`inserRaw.js`
 
 ```js
 const knex = require('../config/database');
@@ -369,8 +412,121 @@ async function main() {
 main();
 ```
 
+# UPDATE
 
+```js
+const knexfile = require('../../knexfile');
+const knex = require('knex')(knexfile);
+
+async function main() {
+  try {
+    const response = await knex('users').where({id : 1 }).update({
+      first_name: 'Albert',
+      last_name: 'Einstein'
+    });
+    console.log(response);
+  } catch (error) {
+    console.log(error);
+  } finally {
+    knex.destroy();
+  }
+}
+
+main();
+```
+
+# DELETE
+
+```js
+const knexfile = require('../../knexfile');
+const knex = require('knex')(knexfile);
+
+async function main() {
+  try {
+    const response = await knex('users').where({id : 1 }).delete();
+    console.log(response);
+  } catch (error) {
+    console.log(error);
+  } finally {
+    knex.destroy();
+  }
+}
+
+main();
+```
+
+# JOIN
+
+## INNER JOIN
+
+```js
+const knexfile = require('../../knexfile');
+const knex = require('knex')(knexfile);
+
+async function main() {
+  try {
+    const response = await knex('users')
+      .select('users.id', 'profiles.bio')
+      .innerJoin('profiles', 'users.id', 'profiles.user_id');
+
+    console.log(response);
+  } catch (error) {
+    console.log(error);
+  } finally {
+    knex.destroy();
+  }
+}
+
+main();
+```
+
+## LEFT JOIN
+
+```js
+const knexfile = require('../../knexfile');
+const knex = require('knex')(knexfile);
+
+async function main() {
+  try {
+    const response = await knex('users')
+      .select('users.id', 'profiles.bio')
+      .leftJoin('profiles', 'users.id', 'profiles.user_id');
+
+    console.log(response);
+  } catch (error) {
+    console.log(error);
+  } finally {
+    knex.destroy();
+  }
+}
+
+main();
+```
+
+## RIGHT JOIN
+
+```js
+const knexfile = require('../../knexfile');
+const knex = require('knex')(knexfile);
+
+async function main() {
+  try {
+    const response = await knex('users')
+      .select('users.id', 'profiles.bio')
+      .rightJoin('profiles', 'users.id', 'profiles.user_id');
+
+    console.log(response);
+  } catch (error) {
+    console.log(error);
+  } finally {
+    knex.destroy();
+  }
+}
+
+main();
+```
 
 # Referencias
 
 https://github.com/luizomf/sql-e-knex
+https://devhints.io/
